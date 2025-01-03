@@ -22,10 +22,10 @@ if __name__ == "__main__":
   while True:
     query = takecommand()
 
-    if any(x in query for x in ["wake up kaya", "wake up", "wiki wiki", "breakup kaya"]):
+    if any(x in query for x in ["wake up flash", "wake up", "wiki wiki", "breakup flash"]):
       os.system("start cmd")
       time.sleep(1)
-      pyautogui.typewrite("python \"c:/Users/saksh/Desktop/kayathebot/kayaentry.py\"")
+      pyautogui.typewrite("python \"c:/Users/saksh/Desktop/flashthebot/flashentry.py\"")
       time.sleep(1)
       pyautogui.press("enter")
       time.sleep(1)
