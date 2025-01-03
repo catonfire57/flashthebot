@@ -1,5 +1,8 @@
 import pyttsx3 
 import speech_recognition as sr
+from gtts import gTTS
+import pygame
+from io import BytesIO
 import datetime
 import os
 import cv2
@@ -17,6 +20,14 @@ import pyautogui
 from pywikihow import search_wikihow
 import psutil
 
+pygame.init()
+pygame.mixer.init()
+
+def wait():
+    while pygame.mixer.get_busy():
+        time.sleep(1)
+
+
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 
@@ -30,6 +41,15 @@ def speak(audio):
     engine.say(audio)
     print(audio)
     engine.runAndWait()
+
+def speak_with_gtts(text, language='en', tld='co.in'):
+    mp3_fo = BytesIO()
+    tts = gTTS(text, lang=language)
+    tts.write_to_fp(mp3_fo)
+    mp3_fo.seek(0)
+    sound = pygame.mixer.Sound(mp3_fo)
+    sound.play()
+    wait()
 
 def takecommand():
     r = sr.Recognizer()
@@ -67,13 +87,24 @@ def wish():
     #thread.start()
 
 
-def batterycheck_thread():
-    battery = psutil.sensors_battery()
-    percent = battery.percent
-    if percent<=75 and percent>=70:
-        speak("sir, the battery is running low, pls connect the charger")
-        time.sleep(5)
-
+def batterycheck():
+    while True:
+        battery = psutil.sensors_battery()
+        percent = battery.percent
+        plugged = battery.power_plugged
+        if plugged:
+            pass
+        else:
+            if percent<=15 and percent>10:
+                speak_with_gtts("low battery, please connect the charger")
+                time.sleep(5)
+            if percent<=10:
+                speak_with_gtts("battery is critically low, please connect the charger")
+                time.sleep(200)
+thread_batterycheck = threading.Thread(target=batterycheck) #                          _____
+thread_batterycheck.daemon = True # Allow program to exit even if thread is running        |
+thread_batterycheck.start() #                                                              |   HERE WE INIT THE THREAD FOR BATTERYCHECK IN BG!!
+#                                                                                       ___|  
 def typewrite():
     print("INITIATING TYPEWRITE")
     while True:
@@ -440,8 +471,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
 
 if __name__ == "__main__":
     while True:
-        thread = threading.Thread(target=batterycheck_thread)
-        thread.start()
+        
         purge()
         permission = takecommand().lower()
         if any(x in permission for x in ["wake up", "breakup"]):
