@@ -7,7 +7,7 @@ while True:
     if input("Enter password: ") == password:
         os.system("start cmd")
         time.sleep(1)
-        pyautogui.typewrite("python \"c:/Users/saksh/Desktop/kayathebot/kaya.py\"")
+        pyautogui.typewrite("python \"c:/Users/saksh/Desktop/flashthebot/flash.py\"")
         time.sleep(1)
         pyautogui.press("enter")
         os._exit(0)
