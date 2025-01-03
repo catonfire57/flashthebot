@@ -22,7 +22,7 @@ voices = engine.getProperty('voices')
 
 # print(voices[1].id)
 engine.setProperty('rate', 200)
-engine.setProperty('voices', voices[1].id)
+engine.setProperty('voice', voices[1].id)
 
 # text to speech
 
@@ -52,10 +52,10 @@ def wish():
     hour = int(datetime.datetime.now().hour)
 
     if hour>=0 and hour<12:
-        speak("good morning sir, kaya is up")
+        speak("good morning sir, flash is online")
     elif hour>=12 and hour<16:
-        speak("good afternoon sir, kaya is up")
-    else: speak("good evening sir, kaya is up")
+        speak("good afternoon sir, flash is online")
+    else: speak("good evening sir, flash is online")
 
 #def set_reminder(reminder, seconds):
     #def reminder_thread():
@@ -70,13 +70,9 @@ def wish():
 def batterycheck_thread():
     battery = psutil.sensors_battery()
     percent = battery.percent
-    if percent<=64 and percent>=63:
-        speak("sir, the battery running low, pls connect the charger")
-        time.sleep(300)
-    time.sleep(300)
-thread = threading.Thread(target=batterycheck_thread)
-thread.start()
-
+    if percent<=75 and percent>=70:
+        speak("sir, the battery is running low, pls connect the charger")
+        time.sleep(5)
 
 def typewrite():
     print("INITIATING TYPEWRITE")
@@ -115,6 +111,9 @@ def screen_navigation():
                 pyautogui.keyDown(command[1])
             if "close this window" in q:
                 pyautogui.hotkey("alt", "f4")
+
+def purge():  # clears screen...
+    os.system('cls' if os.name == 'nt' else 'clear')
 
             
 commands_for_pyautogui = [
@@ -218,10 +217,11 @@ sites = [
 ]
 
 
-def kayathebot():
+def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
     wish()
     while True:
 
+        purge()
         query = takecommand().lower()
         assisted = False
 
@@ -260,12 +260,12 @@ def kayathebot():
             #cap.release()
             #cv2.destroyAllWindows()
         
-        if "ip" in query:
+        if "my ip" in query or "the ip" in query:
             ip = get('https://api.ipify.org').text
             speak(ip)
             assisted = True
 
-        if any(x in query for x in ["hello kaya", "kaya you up", "alive", "wake up", "hello kya"]):
+        if any(x in query for x in ["hello", "you up", "alive", "wake up", "hello"]):
             speak("hello sir, I'm up and working fine")
             assisted = True
 
@@ -273,7 +273,7 @@ def kayathebot():
 
         if "open whatsapp" in query:
             speak("sure, opening whatsapp")
-            npath = "C:\\Users\\saksh\\Desktop\\Shortcuts ( dont delete )\\WhatsApp.lnk"
+            npath = "C:\\Users\\saksh\\Desktop\\flashthebot\\Shortcuts ( dont delete )\\WhatsApp.lnk"
             os.startfile(npath)
             assisted = True
        
@@ -297,12 +297,14 @@ def kayathebot():
                 pyautogui.typewrite(person)
                 time.sleep(1)
                 pyautogui.press("tab")
-                pyautogui.press("enter")
                 time.sleep(1)
-                pyautogui.typewrite(msg)
                 pyautogui.press("enter")
-                speak("message sent sir")
+                time.sleep(0.1)
+                pyautogui.write(msg)
+                pyautogui.press("enter")
                 pyautogui.hotkey("alt", "f4")
+                time.sleep(0.1)
+                speak("done sir")
             else:
                 print("speak again")
                 continue
@@ -325,23 +327,28 @@ def kayathebot():
             assisted = True
 
 
-        if "search on google" in query or "search google for" in query:
+        if any(x in query for x in ["search on google", "search google for", "on google"]):
             speak("Sure, searching google for this?")
-            query = query.replace("search", "").replace("google", "").replace("for", "").replace("on", "")
+            query = query.replace("search", "").replace("google", "").replace("for", "").replace("on", "").replace("flash", "")
             wb.open(f"https://www.google.com/search?q={query}")
             assisted = True
 
         if "anime"in query:
             speak("here you go weeb")
-            npath = "C:\\Users\\saksh\\Desktop\\Shortcuts ( dont delete )\\hianime.to.lnk"
+            npath = "C:\\Users\\saksh\\Desktop\\flashthebot\\Shortcuts ( dont delete )\\hianime.to.lnk"
             os.startfile(npath)
             assisted = True
 
-        if any(x in query for x in ["play song", "play"]):
-            query = query.replace("song", "").replace("play", "").replace("the", "").replace("kaya", "")
+        if any(x in query for x in ["play song", "play", "play the song"]):
+            query = query.replace("song", "").replace("play", "").replace("the", "").replace("flash", "")
             speak(f"playing {query}")
             kit.playonyt(query)
             assisted= True
+
+        if any(x in query for x in ["search youtube for", "search on youtube", "show youtube results for", "show results on youtube for", "on youtube"]):
+            query = query.replace("search youtube for", "").replace("search on youtube", "").replace("show youtube results for", "").replace("show results on youtube for", "").replace("search", "").replace("on youtube", "").replace("for", "")
+            wb.open(f"https://www.youtube.com/results?search_query={query}")
+            assisted = True
 
         
         if any(x in query for x in ["sleep", "exit", "rest", "quit", "shut down", "shutdown", "standby"]):
@@ -414,7 +421,7 @@ def kayathebot():
 
         if "how to" in query:
             assisted = True
-            query = query.replace("how to", "").replace("kaya", "").replace("tell me", "")
+            query = query.replace("how to", "").replace("flash", "").replace("tell me", "")
             max_results = 1
             how_to = search_wikihow(query, max_results)
             assert len(how_to) == 1
@@ -433,10 +440,14 @@ def kayathebot():
 
 if __name__ == "__main__":
     while True:
+        thread = threading.Thread(target=batterycheck_thread)
+        thread.start()
+        purge()
         permission = takecommand().lower()
         if any(x in permission for x in ["wake up", "breakup"]):
-            kayathebot()
+            flashthebot()
         if any(x in permission for x in ["terminate", "shut down", "shutdown", "kill system"]):
-            speak("kaya has been terminated for now")
+            speak("flash has been terminated for now")
             winsound.Beep(900, 500)
+            purge()
             sys.exit()
