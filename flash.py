@@ -19,6 +19,7 @@ import threading
 import pyautogui
 from pywikihow import search_wikihow
 import psutil
+import random
 
 pygame.init()
 pygame.mixer.init()
@@ -72,10 +73,10 @@ def wish():
     hour = int(datetime.datetime.now().hour)
 
     if hour>=0 and hour<12:
-        speak("good morning sir, flash is online")
+        speak("good morning sir, flash is online, kaya would be working in background")
     elif hour>=12 and hour<16:
-        speak("good afternoon sir, flash is online")
-    else: speak("good evening sir, flash is online")
+        speak("good afternoon sir, flash is online, kaya would be working in background")
+    else: speak("good evening sir, flash is online, kaya would be working in background")
 
 #def set_reminder(reminder, seconds):
     #def reminder_thread():
@@ -97,14 +98,46 @@ def batterycheck():
         else:
             if percent<=15 and percent>10:
                 speak_with_gtts("low battery, please connect the charger")
-                time.sleep(5)
+                time.sleep(400)
             if percent<=10:
                 speak_with_gtts("battery is critically low, please connect the charger")
-                time.sleep(200)
+                time.sleep(300)
 thread_batterycheck = threading.Thread(target=batterycheck) #                          _____
 thread_batterycheck.daemon = True # Allow program to exit even if thread is running        |
 thread_batterycheck.start() #                                                              |   HERE WE INIT THE THREAD FOR BATTERYCHECK IN BG!!
 #                                                                                       ___|  
+
+def alarm(query_for_alarm):
+    t = query_for_alarm.replace("wake me up after", "").replace("wake me up in", "").replace("set alarm for", "").replace("hours", "").replace("hour", "").replace("minutes", "").replace("minute", "").replace("seconds", "").replace("second", "").replace("flash", "")
+    t = int(t)
+    if "seconds" in query_for_alarm or "second" in query_for_alarm:
+        speak_with_gtts(f"sure, I'll ring the bell in {t} seconds")
+        time.sleep(t)
+        winsound.Beep(900, 300)
+        time.sleep(0.2)
+        winsound.Beep(900, 300)
+        time.sleep(0.2)
+        winsound.Beep(900, 300)
+        speak_with_random_responsegtts("alarm")
+    if "minutes" in query_for_alarm or "minute" in query_for_alarm:
+        speak_with_gtts(f"sure, I'll ring the bell in {t} minutes")
+        time.sleep(t*60)
+        winsound.Beep(900, 300)
+        time.sleep(0.2)
+        winsound.Beep(900, 300)
+        time.sleep(0.2)
+        winsound.Beep(900, 300)
+        speak_with_random_responsegtts("alarm")
+    if "hours" in query_for_alarm or "hour" in query_for_alarm:
+        speak_with_gtts(f"sure, I'll ring the bell in {t} hours")
+        time.sleep(t*3600)
+        winsound.Beep(900, 300)
+        time.sleep(0.2)
+        winsound.Beep(900, 300)
+        time.sleep(0.2)
+        winsound.Beep(900, 300)
+        speak_with_random_responsegtts("alarm")
+
 def typewrite():
     print("INITIATING TYPEWRITE")
     while True:
@@ -146,7 +179,22 @@ def screen_navigation():
 def purge():  # clears screen...
     os.system('cls' if os.name == 'nt' else 'clear')
 
-            
+def speak_with_random_responsegtts(key):
+    response = random.choice(responses[key])
+    speak_with_gtts(response)
+
+def speak_with_random_responsepyttsx(key):
+    response = random.choice(responses[key])
+    speak(response)
+
+responses = {
+    "welcome": ["my pleasure master", "always ready to help sir", "no worries master", "always there for you sir"],
+    "goodbye": ["kk, standbye", "goodbye sir, see you soon", "wake me up when needed sir", "thanks, I was a bit tired"],
+    "joke": ["here's a joke", "I hope this makes you laugh", "my non-emotional voice is funny already, anyways here's a joke"],
+    "hello": ["hello sir, I'm up", "Hi sir, what can I do for you", "I'm right here, ready to help"],
+    "iamup": ["I'm up and working fine", "I can't sleep without your permission hence I'm up", "I don't remember you asking me to sleep"]
+}
+
 commands_for_pyautogui = [
     ["!", "!"],
     ["hashtag", "#"],
@@ -296,14 +344,16 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             speak(ip)
             assisted = True
 
-        if any(x in query for x in ["hello", "you up", "alive", "wake up", "hello"]):
-            speak("hello sir, I'm up and working fine")
+        if any(x in query for x in ["hello"]):
+            speak_with_random_responsepyttsx("hello")
             assisted = True
 
+        if any(x in query for x in ["wake up", "are you up"]):
+            speak_with_random_responsepyttsx("iamup")
+            assisted=True
         
-
         if "open whatsapp" in query:
-            speak("sure, opening whatsapp")
+            speak("ok")
             npath = "C:\\Users\\saksh\\Desktop\\flashthebot\\Shortcuts ( dont delete )\\WhatsApp.lnk"
             os.startfile(npath)
             assisted = True
@@ -324,17 +374,17 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
                 pyautogui.typewrite("whatsapp")
                 time.sleep(1)
                 pyautogui.press("enter")
-                time.sleep(1)
+                time.sleep(1.2)
                 pyautogui.typewrite(person)
-                time.sleep(1)
+                time.sleep(1.2)
                 pyautogui.press("tab")
                 time.sleep(1)
                 pyautogui.press("enter")
                 time.sleep(0.1)
                 pyautogui.write(msg)
                 pyautogui.press("enter")
+                time.sleep(1)
                 pyautogui.hotkey("alt", "f4")
-                time.sleep(0.1)
                 speak("done sir")
             else:
                 print("speak again")
@@ -353,8 +403,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             assisted = True
 
         if any(x in query for x in ["thankyou", "thank", "crazy", "amazing"]):
-            speak("my pleasure master")
-            speak("anything else I can help with?")
+            speak_with_random_responsepyttsx("welcome")
             assisted = True
 
 
@@ -383,8 +432,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
 
         
         if any(x in query for x in ["sleep", "exit", "rest", "quit", "shut down", "shutdown", "standby"]):
-            speak("goodbye sir, see you soon")
-            speak("standby")
+            speak_with_random_responsepyttsx("goodbye")
             assisted = True
             break
         
@@ -407,6 +455,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
 
         if "joke" in query:
             assisted = True
+            speak_with_random_responsepyttsx("joke")
             speak(pyjokes.get_joke())
 
         #if "remind me" in query:
@@ -463,11 +512,12 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             assisted = True
             battery = psutil.sensors_battery()
             percent = battery.percent
-            if percent<20:
-                speak(f"this system has only {percent} percent battery left, I sense the need of connecting the charger")
-            else:
-                speak(f"we have {percent} percent battery right now")
+            speak(f"we have {percent} percent battery right now")
 
+        if any(x in query for x in ["alarm", "wake me"]):
+            query_for_alarm = query
+            alarm_thread = threading.Thread(target=alarm, args=(query_for_alarm,))#   |_ this is alarm thread init
+            alarm_thread.start() #                                                    |
 
 if __name__ == "__main__":
     while True:
@@ -477,7 +527,7 @@ if __name__ == "__main__":
         if any(x in permission for x in ["wake up", "breakup"]):
             flashthebot()
         if any(x in permission for x in ["terminate", "shut down", "shutdown", "kill system"]):
-            speak("flash has been terminated for now")
+            speak("flash and kaya have been terminated for now")
             winsound.Beep(900, 500)
             purge()
             sys.exit()
