@@ -1,4 +1,4 @@
-KAYA, Your Desktop Assistant!!
+FLASH & KAYA, Your Desktop Assistants in One Program!!
 
 ~ program is under constant development ( not ready for full assistance yet )
 
@@ -6,4 +6,4 @@ KAYA, Your Desktop Assistant!!
 
 
 
-P.S - ignore, this is just for saving the code online...
+P.S - ignore, this is just for saving the code online haha...
