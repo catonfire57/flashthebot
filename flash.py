@@ -559,7 +559,9 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
 
 
         if any(x in query for x in ["start using ai", "use ai", "from ai"]):
+            speak("initiated ai usage")
             while True:
+                query = takecommand().lower()
                 model = 'fixt/home-3b-v3'
                 prompt = query
 
