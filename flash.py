@@ -1,3 +1,6 @@
+# enter the user's name here ------ #
+mastername = "Saksham"
+
 import pyttsx3 
 import speech_recognition as sr
 from gtts import gTTS
@@ -14,12 +17,16 @@ import time
 import pywhatkit as kit
 import sys 
 import winsound
-import pyjokes
+import pyjokes  
 import threading
 import pyautogui
 from pywikihow import search_wikihow
 import psutil
 import random
+import geocoder
+import requests
+import json
+import ollama
 
 pygame.init()
 pygame.mixer.init()
@@ -33,7 +40,7 @@ engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 
 # print(voices[1].id)
-engine.setProperty('rate', 200)
+engine.setProperty('rate', 190)
 engine.setProperty('voice', voices[1].id)
 
 # text to speech
@@ -102,10 +109,9 @@ def batterycheck():
             if percent<=10:
                 speak_with_gtts("battery is critically low, please connect the charger")
                 time.sleep(300)
-thread_batterycheck = threading.Thread(target=batterycheck) #                          _____
-thread_batterycheck.daemon = True # Allow program to exit even if thread is running        |
-thread_batterycheck.start() #                                                              |   HERE WE INIT THE THREAD FOR BATTERYCHECK IN BG!!
-#                                                                                       ___|  
+thread_batterycheck = threading.Thread(target=batterycheck)  # threading alarm to work in background
+thread_batterycheck.daemon = True
+thread_batterycheck.start()
 
 def alarm(query_for_alarm):
     t = query_for_alarm.replace("wake me up after", "").replace("wake me up in", "").replace("set alarm for", "").replace("hours", "").replace("hour", "").replace("minutes", "").replace("minute", "").replace("seconds", "").replace("second", "").replace("flash", "")
@@ -126,7 +132,7 @@ def alarm(query_for_alarm):
         time.sleep(0.2)
         winsound.Beep(900, 300)
         time.sleep(0.2)
-        winsound.Beep(900, 300)
+        winsound.Beep(900, 300) 
         speak_with_random_responsegtts("alarm")
     if "hours" in query_for_alarm or "hour" in query_for_alarm:
         speak_with_gtts(f"sure, I'll ring the bell in {t} hours")
@@ -179,6 +185,10 @@ def screen_navigation():
 def purge():  # clears screen...
     os.system('cls' if os.name == 'nt' else 'clear')
 
+def location():
+    g = geocoder.ip('me')
+    print(g.latlng)
+
 def speak_with_random_responsegtts(key):
     response = random.choice(responses[key])
     speak_with_gtts(response)
@@ -191,8 +201,9 @@ responses = {
     "welcome": ["my pleasure master", "always ready to help sir", "no worries master", "always there for you sir"],
     "goodbye": ["kk, standbye", "goodbye sir, see you soon", "wake me up when needed sir", "thanks, I was a bit tired"],
     "joke": ["here's a joke", "I hope this makes you laugh", "my non-emotional voice is funny already, anyways here's a joke"],
-    "hello": ["hello sir, I'm up", "Hi sir, what can I do for you", "I'm right here, ready to help"],
-    "iamup": ["I'm up and working fine", "I can't sleep without your permission hence I'm up", "I don't remember you asking me to sleep"]
+    "hello": ["hello sir, I'm up", "Hi sir, what can I do for you", "I'm right here, ready to help", "I am at your service, Master.", "It's good to have you back, Master.", "It is a pleasure to see you, Master."],
+    "iamup": ["I'm up and working fine", "I can't sleep without your permission hence I'm up", "I don't remember you asking me to sleep"],
+    "alarm": ["knock knock, this is the alarm beep", "wake up!! it's time", "don't worry it's not system making sounds, it's me cause the alarm time is up", "Beep beep! It's time to wake up. This is your wake-up call!", "Ding ding! Wakey wakey! The alarm is going off!"],
 }
 
 commands_for_pyautogui = [
@@ -264,7 +275,7 @@ sites = [
     # Entertainment & Media
     ["netflix", "https://www.netflix.com"],
     ["spotify", "https://www.spotify.com"],
-    ["movie", "https://vipstream.com"],
+    ["movie", "https://vipstream.tv"],
 
     # Communication & Email
     ["mailbox", "https://mail.google.com/mail/u/0/#inbox"],
@@ -304,29 +315,29 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
         query = takecommand().lower()
         assisted = False
 
-# ALL TASKS LOGIC
+# LOGICS FOR ALL TASKS...
 
         for site in sites:
             if f"{site[0]}".lower() in query.lower():
+                assisted = True
                 speak("Sure, here you go")
                 wb.open(site[1])
-                assisted = True
 
 
         if "notepad" in query:
+            assisted = True
             speak("sure")
             npath = "C:\\Program Files\\WindowsApps\\Microsoft.WindowsNotepad_11.2410.21.0_x64__8wekyb3d8bbwe\\Notepad\\Notepad.exe"
             os.startfile(npath)
-            assisted = True
 
         if any(x in query for x in ["start typing", "type what I say"]):
-            typewrite()
             assisted = True
+            typewrite()
         
         if "cmd" in query or "command prompt" in query:
+            assisted = True
             speak("sure, lesgo catto")
             os.system("start cmd")
-            assisted = True
 
         #if "webcam" in query:
             #cap = cv2.VideoCapture(0)
@@ -339,28 +350,28 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             #cap.release()
             #cv2.destroyAllWindows()
         
-        if "my ip" in query or "the ip" in query:
+        if "my ip" in query or "the ip" in query or " ip" in query:
+            assisted = True
             ip = get('https://api.ipify.org').text
             speak(ip)
-            assisted = True
 
         if any(x in query for x in ["hello"]):
-            speak_with_random_responsepyttsx("hello")
             assisted = True
+            speak_with_random_responsepyttsx("hello")
 
         if any(x in query for x in ["wake up", "are you up"]):
+            assisted = True
             speak_with_random_responsepyttsx("iamup")
-            assisted=True
         
         if "open whatsapp" in query:
+            assisted = True
             speak("ok")
             npath = "C:\\Users\\saksh\\Desktop\\flashthebot\\Shortcuts ( dont delete )\\WhatsApp.lnk"
             os.startfile(npath)
-            assisted = True
        
         if "settings" in query:
-            pyautogui.hotkey("win", "i")
             assisted = True
+            pyautogui.hotkey("win", "i")
 
         if "send message to" in query:
             assisted = True
@@ -392,60 +403,65 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
 
 
         if "chat gpt" in query:
+            assisted = True
             speak("kk")
             npath = "C:\\Users\\saksh\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Chrome Apps\\ChatGPT.lnk"
             os.startfile(npath)
-            assisted = True
 
         if "open genshin" in query or "open genshin impact" in query:
+            assisted = True
             npath = "C:\\Program Files\\Epic Games\\GenshinImpact\\games\\Genshin Impact game\\GenshinImpact.exe"
             os.startfile(npath)
-            assisted = True
 
         if any(x in query for x in ["thankyou", "thank", "crazy", "amazing"]):
-            speak_with_random_responsepyttsx("welcome")
             assisted = True
+            speak_with_random_responsepyttsx("welcome")
 
 
         if any(x in query for x in ["search on google", "search google for", "on google"]):
+            assisted = True
             speak("Sure, searching google for this?")
             query = query.replace("search", "").replace("google", "").replace("for", "").replace("on", "").replace("flash", "")
             wb.open(f"https://www.google.com/search?q={query}")
-            assisted = True
 
         if "anime"in query:
+            assisted = True
             speak("here you go weeb")
             npath = "C:\\Users\\saksh\\Desktop\\flashthebot\\Shortcuts ( dont delete )\\hianime.to.lnk"
             os.startfile(npath)
-            assisted = True
 
         if any(x in query for x in ["play song", "play", "play the song"]):
+            assisted = True
             query = query.replace("song", "").replace("play", "").replace("the", "").replace("flash", "")
             speak(f"playing {query}")
             kit.playonyt(query)
-            assisted= True
 
         if any(x in query for x in ["search youtube for", "search on youtube", "show youtube results for", "show results on youtube for", "on youtube"]):
+            assisted = True
             query = query.replace("search youtube for", "").replace("search on youtube", "").replace("show youtube results for", "").replace("show results on youtube for", "").replace("search", "").replace("on youtube", "").replace("for", "")
             wb.open(f"https://www.youtube.com/results?search_query={query}")
-            assisted = True
 
         
-        if any(x in query for x in ["sleep", "exit", "rest", "quit", "shut down", "shutdown", "standby"]):
-            speak_with_random_responsepyttsx("goodbye")
+        if any(x in query for x in ["sleep", "exit", "rest", "quit", "standby"]):
             assisted = True
+            speak_with_random_responsepyttsx("goodbye")
             break
         
+        if any(x in query for x in ["shutdown", "shut down", "terminate"]):
+            assisted = True
+            speak("terminating kaya")
+            sys.exit()
+        
         if "time" in query:
+            assisted = True
             strfTime = datetime.datetime.now().strftime("%H:%M")
             speak(strfTime)
-            assisted = True
 
         if "date" in query:
+            assisted = True
             now = datetime.datetime.now()
             date_only = now.date()
             speak(date_only)
-            assisted = True
 
         if any(x in query for x in ["parrot", "vm", "virtual machine"]):
             assisted = True
@@ -481,8 +497,18 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
                     break
 
         if any(x in query for x in ["switch my window", "switch window", "switch this window"]):
-            pyautogui.hotkey("alt", "tab")
             assisted = True
+            pyautogui.hotkey("alt", "tab")
+
+        if any(x in query for x in ["maximize", "full screen"]):
+            assisted=True
+            pyautogui.hotkey("win", "up")
+
+        if any(x in query for x in ["minimize"]):
+            assisted=True
+            pyautogui.hotkey("win", "down")
+            time.sleep(0.1)
+            pyautogui.hotkey("win", "down")
 
         if "screen navigation" in query:
             assisted = True
@@ -491,9 +517,6 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
         if any(x in query for x in ["close this window", "close window", "close this"]):
             assisted = True
             pyautogui.hotkey("alt", "f4")
-
-        #if not assisted:
-            #speak("Sorry, I can't assist you with that, but I'm still learning")
 
         if "stop" in query:
             assisted = True
@@ -515,9 +538,71 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             speak(f"we have {percent} percent battery right now")
 
         if any(x in query for x in ["alarm", "wake me"]):
+            assisted=True
             query_for_alarm = query
             alarm_thread = threading.Thread(target=alarm, args=(query_for_alarm,))#   |_ this is alarm thread init
             alarm_thread.start() #                                                    |
+        
+        if any(x in query for x in ["introduce yourself", "who are you", "about you", "about yourself"]):
+            assisted=True
+            speak(f"Hi! I'm Flash, {mastername}'s desktop assistant. I'm designed to be fast and efficient, always ready to tackle tasks and deliver results in a flash.")
+            speak("and we have another background bot named kaya, wait, lemme ask it to introduce itself real fast.")
+            speak_with_gtts("hi there, i'm kaya. i handle tasks with threading and speak a bit slow, please don't mind me, talk to flash, he's better")
+            speak("well, may i know your name?")
+            name = takecommand().lower()
+            name = name.replace("hello", "").replace("flash", "").replace("kaya", "").replace("my", "").replace("i am", "").replace("name", "").replace("is", "").replace("hi", "").replace("myself", "").replace("this is", "").replace("I'm", "").replace("i m", "").replace("there", "")
+            speak(f"hi there {name}, it's a pleasure to meet you. I really wanted to have a convo with you but my lazy and dumb master doesn't know AI, shit i spoke alot, sorry sir, back to work")
+        
+        if any(x in query for x in ["your owner", "your master", "your sir", "created you", "made you"]):
+            assisted = True
+            speak("I'm programmed by my owner Saksham Jain")
+
+
+        if any(x in query for x in ["start using ai", "use ai", "from ai"]):
+            while True:
+                model = 'fixt/home-3b-v3'
+                prompt = query
+
+                if any(x in query for x in ["stop ai", "stop using ai", "no need of ai", "no ai"]):
+                    speak("k, I'll stop ai")
+                    break
+
+                try:
+                    stream = ollama.chat(
+                        model=model,
+                        messages=[{'role': 'user', 'content': prompt}],
+                        stream=True,
+                    )
+
+                    full_response = ""
+                    current_sentence = ""  # Accumulate content for a sentence
+                    for chunk in stream:
+                        content = chunk.get('message', {}).get('content', '')
+                        print(content, end='', flush=True)
+                        full_response += content
+                        current_sentence += content
+
+                        # Check for sentence boundaries (. ! ?) and speak
+                        if any(punct in current_sentence for punct in ['.', '!', '?']):
+                            speak(current_sentence.strip())  # Speak the full sentence
+                            current_sentence = ""  # Reset for the next sentence
+
+                    # Speak any remaining text (if the last chunk wasn't a full sentence)
+                    if current_sentence:
+                        speak(current_sentence.strip())
+
+                    print("\n")
+                    print(f"Full Response: {full_response}")
+
+                except ollama.OllamaError as e:
+                    print(f"Ollama API Error: {e}")
+                    # speak("There was an issue communicating with the language model.")
+                except requests.exceptions.RequestException as e:
+                    print(f"Network Error: {e}")
+                    # speak("A network error occurred. Please check your internet connection.")
+                except Exception as e:
+                    print(f"An unexpected error occurred: {e}")
+                    # speak("An unexpected error occurred.")
 
 if __name__ == "__main__":
     while True:
