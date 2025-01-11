@@ -1,5 +1,5 @@
-# enter the user's name here ------ #
-mastername = "Saksham"
+# enter the master's name here ------ #
+mastername = "Saksham"kh
 
 import pyttsx3 
 import speech_recognition as sr
@@ -558,16 +558,13 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             speak("I'm programmed by my owner Saksham Jain")
 
 
-        if any(x in query for x in ["start using ai", "use ai", "from ai"]):
-            speak("initiated ai usage")
-            while True:
+        if not assisted:
+            if query == None:
+                print("speak again...")
+            else:
                 query = takecommand().lower()
                 model = 'fixt/home-3b-v3'
                 prompt = query
-
-                if any(x in query for x in ["stop ai", "stop using ai", "no need of ai", "no ai"]):
-                    speak("k, I'll stop ai")
-                    break
 
                 try:
                     stream = ollama.chat(
@@ -596,15 +593,8 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
                     print("\n")
                     print(f"Full Response: {full_response}")
 
-                except ollama.OllamaError as e:
-                    print(f"Ollama API Error: {e}")
-                    # speak("There was an issue communicating with the language model.")
-                except requests.exceptions.RequestException as e:
-                    print(f"Network Error: {e}")
-                    # speak("A network error occurred. Please check your internet connection.")
                 except Exception as e:
-                    print(f"An unexpected error occurred: {e}")
-                    # speak("An unexpected error occurred.")
+                    print(f"speak again..., error > {e}")
 
 if __name__ == "__main__":
     while True:
