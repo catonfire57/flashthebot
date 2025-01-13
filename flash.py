@@ -1,5 +1,5 @@
 # enter the master's name here ------ #
-mastername = "Saksham"kh
+mastername = "Saksham"
 
 import pyttsx3 
 import speech_recognition as sr
