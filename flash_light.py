@@ -1,5 +1,6 @@
 # enter the master's name here ------ #
 mastername = "Saksham"
+# selected model is fixt/home-3b-v3:latest being the lightest in my knowledge 
 
 import pyttsx3 
 import speech_recognition as sr
