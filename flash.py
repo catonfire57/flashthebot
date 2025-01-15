@@ -563,7 +563,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
                 print("speak again...")
             else:
                 query = takecommand().lower()
-                model = 'fixt/home-3b-v3'
+                model = 'openchat'
                 prompt = query
 
                 try:
