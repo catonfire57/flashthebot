@@ -114,36 +114,34 @@ thread_batterycheck = threading.Thread(target=batterycheck)  # threading alarm t
 thread_batterycheck.daemon = True
 thread_batterycheck.start()
 
+def beep():
+    global stop_beep
+    stop_beep = False
+    while not stop_beep:
+        winsound.Beep(1200, 400)
+        time.sleep(0.2)
+    print("beep stopped")
+
+stop_beep = False
+
 def alarm(query_for_alarm):
     t = query_for_alarm.replace("wake me up after", "").replace("wake me up in", "").replace("set alarm for", "").replace("hours", "").replace("hour", "").replace("minutes", "").replace("minute", "").replace("seconds", "").replace("second", "").replace("flash", "").replace("ring the bell in", "").replace("would you", "")
     t = int(t)
     if "seconds" in query_for_alarm or "second" in query_for_alarm:
         speak_with_gtts(f"sure, I'll ring the bell in {t} seconds")
         time.sleep(t)
-        winsound.Beep(900, 300)
-        time.sleep(0.2)
-        winsound.Beep(900, 300)
-        time.sleep(0.2)
-        winsound.Beep(900, 300)
-        speak_with_random_responsegtts("alarm")
+        
     if "minutes" in query_for_alarm or "minute" in query_for_alarm:
         speak_with_gtts(f"sure, I'll ring the bell in {t} minutes")
         time.sleep(t*60)
-        winsound.Beep(900, 300)
-        time.sleep(0.2)
-        winsound.Beep(900, 300)
-        time.sleep(0.2)
-        winsound.Beep(900, 300) 
-        speak_with_random_responsegtts("alarm")
+
     if "hours" in query_for_alarm or "hour" in query_for_alarm:
         speak_with_gtts(f"sure, I'll ring the bell in {t} hours")
         time.sleep(t*3600)
-        winsound.Beep(900, 300)
-        time.sleep(0.2)
-        winsound.Beep(900, 300)
-        time.sleep(0.2)
-        winsound.Beep(900, 300)
-        speak_with_random_responsegtts("alarm")
+
+    beep_thread = threading.Thread(target=beep)
+    beep_thread.start()         
+
 
 def typewrite():
     print("INITIATING TYPEWRITE")
@@ -307,8 +305,10 @@ sites = [
 
 ]
 
+stop_response = False
+
 def ai():
-    model = 'openchat'
+    model = 'fixt/home-3b-v3:latest'
     prompt = question
 
     try:
@@ -346,6 +346,8 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
     
     while True:
 
+        global stop_beep
+        #global stop_response
         purge()
         query = takecommand().lower()
         assisted = False
@@ -584,10 +586,12 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             assisted = True
             pyautogui.hotkey("alt", "f4")
 
-        if "stop" in query:
+        if any(x in query for x in ["stop", "ruk", "ruk ja", "shut up", "shutup", "shirt up", "shirtup"]):
             assisted = True
-            speak("ok")
-        
+            stop_beep = True
+            #stop_response = True
+            speak_with_gtts("ok")
+
         if any(x in query for x in ["battery"]):
             assisted = True
             battery = psutil.sensors_battery()
