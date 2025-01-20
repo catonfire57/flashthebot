@@ -1,5 +1,6 @@
 # enter the master's name here ------ #
 mastername = "Saksham"
+# selected model is fixt/home-3b-v3:latest being the lightest in my knowledge 
 
 import pyttsx3 
 import speech_recognition as sr
@@ -114,7 +115,7 @@ thread_batterycheck.daemon = True
 thread_batterycheck.start()
 
 def alarm(query_for_alarm):
-    t = query_for_alarm.replace("wake me up after", "").replace("wake me up in", "").replace("set alarm for", "").replace("hours", "").replace("hour", "").replace("minutes", "").replace("minute", "").replace("seconds", "").replace("second", "").replace("flash", "")
+    t = query_for_alarm.replace("wake me up after", "").replace("wake me up in", "").replace("set alarm for", "").replace("hours", "").replace("hour", "").replace("minutes", "").replace("minute", "").replace("seconds", "").replace("second", "").replace("flash", "").replace("ring the bell in", "").replace("would you", "")
     t = int(t)
     if "seconds" in query_for_alarm or "second" in query_for_alarm:
         speak_with_gtts(f"sure, I'll ring the bell in {t} seconds")
@@ -306,9 +307,43 @@ sites = [
 
 ]
 
+def ai():
+    model = 'openchat'
+    prompt = question
+
+    try:
+        stream = ollama.chat(
+        model=model,
+        messages=[{'role': 'user', 'content': prompt}],
+        stream=True,
+        )
+
+        full_response = ""
+        current_sentence = ""  # Accumulate content for a sentence
+        for chunk in stream:
+            content = chunk.get('message', {}).get('content', '')
+            print(content, end='', flush=True)
+            full_response += content
+            current_sentence += content
+
+            # Check for sentence boundaries (. ! ?) and speak
+            if any(punct in current_sentence for punct in ['.', '!', '?']):
+                speak(current_sentence.strip())  # Speak the full sentence
+                current_sentence = ""  # Reset for the next sentence
+
+        # Speak any remaining text (if the last chunk wasn't a full sentence)
+        if current_sentence:
+            speak(current_sentence.strip())
+
+        print("\n")
+        print(f"Full Response: {full_response}")
+
+    except Exception as e:
+        print(f"speak again..., error > {e}")
+
 
 def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
-    wish()
+    
     while True:
 
         purge()
@@ -418,11 +453,25 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             speak_with_random_responsepyttsx("welcome")
 
 
-        if any(x in query for x in ["search on google", "search google for", "on google"]):
+        if any(x in query for x in ["search on google", "search google for", "on google", "what", "tell me", "answer", "what's", "what are", "how to", "how does", "how is", "how", "detail", "more", "who is", "calculate", "how are", "how should", "how can", "how would", "how shall", "how will", "how did", "when was", "when did", "can you", "can", "who was", "why", "would you", "may", "when", "question", "guess"]):
+            if any(x in query for x in ["date", "time"]):
+                if "time" in query:
+                    strfTime = datetime.datetime.now().strftime("%H:%M")
+                    speak(strfTime)
+                    continue
+                
+                if "date" in query:
+                    now = datetime.datetime.now()
+                    date_only = now.date()
+                    speak(date_only)
+                    continue
+                
+            query = query + " answer in short"
             assisted = True
-            speak("Sure, searching google for this?")
-            query = query.replace("search", "").replace("google", "").replace("for", "").replace("on", "").replace("flash", "")
-            wb.open(f"https://www.google.com/search?q={query}")
+            global question
+            query = query.replace("your master", "").replace("made you", "").replace("your owner", "").replace("saksham", "").replace("kaya", "").replace("flash","")
+            question = query
+            ai()
 
         if "anime"in query:
             assisted = True
@@ -432,7 +481,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
 
         if any(x in query for x in ["play song", "play", "play the song"]):
             assisted = True
-            query = query.replace("song", "").replace("play", "").replace("the", "").replace("flash", "")
+            query = query.replace("song", "").replace("play", "").replace("the", "").replace("flash", "").replace("this", "")
             speak(f"playing {query}")
             kit.playonyt(query)
 
@@ -450,18 +499,19 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
         if any(x in query for x in ["shutdown", "shut down", "terminate"]):
             assisted = True
             speak("terminating kaya")
+            winsound.Beep(900, 500)
             sys.exit()
         
-        if "time" in query:
-            assisted = True
-            strfTime = datetime.datetime.now().strftime("%H:%M")
-            speak(strfTime)
+        #if "time" in query:
+            #assisted = True
+            #strfTime = datetime.datetime.now().strftime("%H:%M")
+            #speak(strfTime)
 
-        if "date" in query:
-            assisted = True
-            now = datetime.datetime.now()
-            date_only = now.date()
-            speak(date_only)
+        #if "date" in query:
+            #assisted = True
+            #now = datetime.datetime.now()
+            #date_only = now.date()
+            #speak(date_only)
 
         if any(x in query for x in ["parrot", "vm", "virtual machine"]):
             assisted = True
@@ -514,6 +564,22 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             assisted = True
             screen_navigation()
 
+        if "find" in query:
+            query = query.replace("find", "").replace("here", "").replace("in", "").replace("this", "").replace("sheet", "").replace("document", "").replace("for me", "")
+            pyautogui.hotkey("ctrl", "f")
+            pyautogui.write(query)
+
+        if "replace" in query:
+            query = query.replace("with", "").replace("replace", "").replace("here", "").replace("in", "").replace("now", "")
+            word1, word2 = query.split()
+            pyautogui.hotkey("ctrl", "h")
+            pyautogui.typewrite(word1)
+            pyautogui.press("tab")
+            pyautogui.hotkey("ctrl", "a")
+            pyautogui.press("backspace")
+            pyautogui.typewrite(word2)
+            speak("check and click replace all")
+
         if any(x in query for x in ["close this window", "close window", "close this"]):
             assisted = True
             pyautogui.hotkey("alt", "f4")
@@ -521,15 +587,6 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
         if "stop" in query:
             assisted = True
             speak("ok")
-
-        if "how to" in query:
-            assisted = True
-            query = query.replace("how to", "").replace("flash", "").replace("tell me", "")
-            max_results = 1
-            how_to = search_wikihow(query, max_results)
-            assert len(how_to) == 1
-            how_to[0].print()
-            speak(how_to[0].summary)
         
         if any(x in query for x in ["battery"]):
             assisted = True
@@ -537,7 +594,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             percent = battery.percent
             speak(f"we have {percent} percent battery right now")
 
-        if any(x in query for x in ["alarm", "wake me"]):
+        if any(x in query for x in ["alarm", "wake me", "ring"]):
             assisted=True
             query_for_alarm = query
             alarm_thread = threading.Thread(target=alarm, args=(query_for_alarm,))#   |_ this is alarm thread init
@@ -545,7 +602,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
         
         if any(x in query for x in ["introduce yourself", "who are you", "about you", "about yourself"]):
             assisted=True
-            speak(f"Hi! I'm Flash, {mastername}'s desktop assistant. I'm designed to be fast and efficient, always ready to tackle tasks and deliver results in a flash.")
+            speak(f"Hi! I'm flash, {mastername}'s desktop assistant. I'm designed to be fast and efficient, always ready to tackle tasks and deliver results in a flash.")
             speak("and we have another background bot named kaya, wait, lemme ask it to introduce itself real fast.")
             speak_with_gtts("hi there, i'm kaya. i handle tasks with threading and speak a bit slow, please don't mind me, talk to flash, he's better")
             speak("well, may i know your name?")
@@ -557,51 +614,13 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             assisted = True
             speak("I'm programmed by my owner Saksham Jain")
 
-
-        if not assisted:
-            if query == None:
-                print("speak again...")
-            else:
-                query = takecommand().lower()
-                model = 'openchat'
-                prompt = query
-
-                try:
-                    stream = ollama.chat(
-                        model=model,
-                        messages=[{'role': 'user', 'content': prompt}],
-                        stream=True,
-                    )
-
-                    full_response = ""
-                    current_sentence = ""  # Accumulate content for a sentence
-                    for chunk in stream:
-                        content = chunk.get('message', {}).get('content', '')
-                        print(content, end='', flush=True)
-                        full_response += content
-                        current_sentence += content
-
-                        # Check for sentence boundaries (. ! ?) and speak
-                        if any(punct in current_sentence for punct in ['.', '!', '?']):
-                            speak(current_sentence.strip())  # Speak the full sentence
-                            current_sentence = ""  # Reset for the next sentence
-
-                    # Speak any remaining text (if the last chunk wasn't a full sentence)
-                    if current_sentence:
-                        speak(current_sentence.strip())
-
-                    print("\n")
-                    print(f"Full Response: {full_response}")
-
-                except Exception as e:
-                    print(f"speak again..., error > {e}")
-
 if __name__ == "__main__":
     while True:
         
         purge()
         permission = takecommand().lower()
         if any(x in permission for x in ["wake up", "breakup"]):
+            wish()
             flashthebot()
         if any(x in permission for x in ["terminate", "shut down", "shutdown", "kill system"]):
             speak("flash and kaya have been terminated for now")
