@@ -1,5 +1,3 @@
-# enter the master's name here ------ #
-mastername = "Saksham"
 # selected model is fixt/home-3b-v3:latest being the lightest in my knowledge 
 
 import pyttsx3 
@@ -9,7 +7,7 @@ import pygame
 from io import BytesIO
 import datetime
 import os
-import cv2
+#import cv2
 import requests
 from requests import get
 import webbrowser as wb
@@ -28,7 +26,7 @@ import geocoder
 import requests
 import json
 import ollama
-
+import pandas as pd
 pygame.init()
 pygame.mixer.init()
 
@@ -38,11 +36,11 @@ def wait():
 
 
 engine = pyttsx3.init('sapi5')
-voices = engine.getProperty('voices')
+voice = engine.getProperty('voices')
 
 # print(voices[1].id)
 engine.setProperty('rate', 190)
-engine.setProperty('voice', voices[1].id)
+engine.setProperty('voice', voice[1].id)
 
 # text to speech
 
@@ -76,6 +74,11 @@ def takecommand():
     except Exception as e:
         return ""
     return query
+
+def read_mastername():
+    global mastername
+    with open("C:\\Users\\saksh\\OneDrive\\Desktop\\username.txt") as masternamefile:
+        mastername = masternamefile.read().strip()
 
 def wish():
     hour = int(datetime.datetime.now().hour)
@@ -125,7 +128,7 @@ def beep():
 stop_beep = False
 
 def alarm(query_for_alarm):
-    t = query_for_alarm.replace("wake me up after", "").replace("wake me up in", "").replace("set alarm for", "").replace("hours", "").replace("hour", "").replace("minutes", "").replace("minute", "").replace("seconds", "").replace("second", "").replace("flash", "").replace("ring the bell in", "").replace("would you", "")
+    t = query_for_alarm.replace("wake me up after", "").replace("wake me up in", "").replace("set alarm for", "").replace("hours", "").replace("hour", "").replace("minutes", "").replace("minute", "").replace("seconds", "").replace("second", "").replace("flash", "").replace("ring the bell in", "").replace("would you", "").replace("please", "")
     t = int(t)
     if "seconds" in query_for_alarm or "second" in query_for_alarm:
         speak_with_gtts(f"sure, I'll ring the bell in {t} seconds")
@@ -471,7 +474,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             query = query + " answer in short"
             assisted = True
             global question
-            query = query.replace("your master", "").replace("made you", "").replace("your owner", "").replace("saksham", "").replace("kaya", "").replace("flash","")
+            query = query.replace("who is your master", "").replace("who made you", "").replace("who is your owner", "").replace("saksham", "").replace("kaya", "").replace("flash","")
             question = query
             ai()
 
@@ -556,7 +559,7 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
             assisted=True
             pyautogui.hotkey("win", "up")
 
-        if any(x in query for x in ["minimize"]):
+        if any(x in query for x in ["minimise"]):
             assisted=True
             pyautogui.hotkey("win", "down")
             time.sleep(0.1)
@@ -606,17 +609,26 @@ def flashthebot():   #THE MAIN PROGRAM ... !!!!!!
         
         if any(x in query for x in ["introduce yourself", "who are you", "about you", "about yourself"]):
             assisted=True
-            speak(f"Hi! I'm flash, {mastername}'s desktop assistant. I'm designed to be fast and efficient, always ready to tackle tasks and deliver results in a flash.")
-            speak("and we have another background bot named kaya, wait, lemme ask it to introduce itself real fast.")
-            speak_with_gtts("hi there, i'm kaya. i handle tasks with threading and speak a bit slow, please don't mind me, talk to flash, he's better")
-            speak("well, may i know your name?")
+            read_mastername()
+            speak(f"Hello! I'm Flash, your smart and friendly assistant, here to make things easier and more fun. I work alongside Kaya, my equally brilliant partner in AI. I was developed by Saksham jain and currently working for {mastername}")
+            speak("may know your name?")
             name = takecommand().lower()
-            name = name.replace("hello", "").replace("flash", "").replace("kaya", "").replace("my", "").replace("i am", "").replace("name", "").replace("is", "").replace("hi", "").replace("myself", "").replace("this is", "").replace("I'm", "").replace("i m", "").replace("there", "")
-            speak(f"hi there {name}, it's a pleasure to meet you. I really wanted to have a convo with you but my lazy and dumb master doesn't know AI, shit i spoke alot, sorry sir, back to work")
+            name = name.replace("hello", "").replace("flash ", "").replace("kaya ", "").replace("my ", "").replace("i am", "").replace("name ", "").replace("is ", "").replace("hi ", "").replace("myself", "").replace("this is", "").replace("I'm", "").replace("i m ", "").replace("there", "").replace("am ", "")
+            speak(f"hi there {name}, it's a pleasure to meet you, is there anything i can help with?")
         
         if any(x in query for x in ["your owner", "your master", "your sir", "created you", "made you"]):
             assisted = True
-            speak("I'm programmed by my owner Saksham Jain")
+            read_mastername()
+            speak(f"I'm programmed by Saksham Jain and currently working for {mastername}")
+
+        if any(x in query for x in ["remember my name", "save my name", "remember that my name", "store my name", "learn my name", "call me", "my name is", " i am "]):
+            savemastername = query.replace("remember my name", "").replace("save my name", "").replace("remember that my name is ", "").replace("store my name", "").replace("learn my name", "").replace("call me", "").replace("my name is", "").replace("is ", "").replace("hello", "").replace("flash ", "").replace("kaya ", "").replace("i am ", "").replace("i m ", "").replace("i'm", "").replace("this is ", "").replace("myself ", "").replace("as ", "")
+            df = pd.Series(savemastername)
+            df.to_csv("C:\\Users\\saksh\\OneDrive\\Desktop\\username.txt", index=False, header=None)
+            read_mastername()
+            speak(f"I'd be calling you {mastername} from now")
+
+        
 
 if __name__ == "__main__":
     while True:
